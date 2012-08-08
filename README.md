@@ -1,16 +1,19 @@
-# `ring-hmac-check`
+# `ring-wixapps-middleware`
 
-[Ring](http://github.com/mmcgrana/ring) middleware that checks POST requests have a valid HMAC of the HTTP POST body in the header.
+[Ring](http://github.com/mmcgrana/ring) middleware that checks the HMAC signature and passes the SignedInstance as :params to the endpoint.
 
 ### Usage
 
 #### With Noir - in server.clj
-      (server/add-middleware wrap-hmac-check {:algorithm "HmacSHA512" :header-field "AUTH-HMAC"
-                                              :secret-key "FIXME put key here"})
+      (server/add-middleware wrap-wixapps-middleware {:algorithm "HmacSHA512" :secret-key "FIXME put key here"})
 
 ## License
 
+Copyright (C) 2012 Dimitri Krassovski
+
+Based on the HMAC check code by Dave Barker
 Copyright (C) 2011 Dave Barker
+
 
 Code distributed under the Eclipse Public License, the same as Clojure.
 
