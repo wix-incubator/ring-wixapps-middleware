@@ -1,11 +1,11 @@
-(ns ring.middleware.hmac-check-test
+(ns ring.middleware.wixapps-middleware-test
   (:import [org.apache.commons.codec.binary Base64 Hex]
            [java.util Arrays])
   (:use clojure.test
         ring.util.test
-        ring.middleware.hmac-check))
+        ring.middleware.wixapps-middleware))
 
-(def hmac-check-handler (wrap-hmac-check identity {:algorithm "HmacSHA512" :header-field "AUTH-HMAC"
+(def wixapps-middleware-handler (wrap-wixapps-middleware identity {:algorithm "HmacSHA512" :header-field "AUTH-HMAC"
                                                    :secret-key "very-secret-key"}))
 
 (def request {:uri "/"
@@ -23,10 +23,10 @@
                      (-> "f39526a1625c5ef672f250037d3b9669e2c6d38c8e19c30344ff04a4fb048ea556befd34ce6dc8fbc7667c76e33c6053bf603ab5760b6e55ce9ab5f1d2274035" char-array Hex/decodeHex))))
 
 (deftest valid-request
-  (is (= (hmac-check-handler request) request)))
+  (is (= (wixapps-middleware-handler request) request)))
 
 (deftest invalid-request
   (let [request (assoc request :body (string-input-stream "This is a different test body"))
-        response (hmac-check-handler request)]
+        response (wixapps-middleware-handler request)]
     (is (= (:status response) 403))
     (is (= (:body response) "403 Forbidden - Incorrect HMAC"))))
