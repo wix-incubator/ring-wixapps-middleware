@@ -5,28 +5,49 @@
         ring.util.test
         ring.middleware.wixapps-middleware))
 
-(def wixapps-middleware-handler (wrap-wixapps-middleware identity {:algorithm "HmacSHA512" :header-field "AUTH-HMAC"
-                                                   :secret-key "very-secret-key"}))
+(def wixapps-middleware-handler (wrap-wixapps-middleware identity {:algorithm "HmacSHA256" :header-field "AUTH-HMAC"
+                                                   :secret-key "d245bbf8-57eb-49d6-aeff-beff6d82cd39"}))
 
-(def request {:uri "/"
-              :request-method :post
+(def valid-request {:uri "/"
+              :request-method :get
               :server-port 80
               :server-name "dave.inadub.co.uk"
               :remote-addr "localhost"
               :scheme :http
-              :headers {"AUTH-HMAC" "dcb14db632d96a3a4dd9259c858242b037b3e95bd569744097231aa0c042ff147b927d0a4704e82732a250717851e89e64421793f259185c0675a64694966da3"}
-              :body (string-input-stream "This is the test body")})
+              :params {"instance" "naQKltLRVJwLVN90qQYpmmyzkVqFIH0hpvETYuivA1U.eyJpbnN0YW5jZUlkIjoiOWY5YzVjMTYtNTljOC00NzA4LThjMjUtODU1NTA1ZGFhOTU0Iiwic2lnbkRhdGUiOiIyMDEyLTA4LTA4VDE5OjQ3OjMxLjYyNFoiLCJ1aWQiOm51bGwsInBlcm1pc3Npb25zIjpudWxsfQ"}
+              })
 
+(def invalid-request {:uri "/"
+              :request-method :get
+              :server-port 80
+              :server-name "dave.inadub.co.uk"
+              :remote-addr "localhost"
+              :scheme :http
+              :params {"instance" "foobar.eyJpbnN0YW5jZUlkIjoiOWY5YzVjMTYtNTljOC00NzA4LThjMjUtODU1NTA1ZGFhOTU0Iiwic2lnbkRhdGUiOiIyMDEyLTA4LTA4VDE5OjQ3OjMxLjYyNFoiLCJ1aWQiOm51bGwsInBlcm1pc3Npb25zIjpudWxsfQ"}
+              })
+
+(def valid-response {:uri "/"
+              :request-method :get
+              :server-port 80
+              :server-name "dave.inadub.co.uk"
+              :remote-addr "localhost"
+              :scheme :http
+              :params {"instance" "eyJpbnN0YW5jZUlkIjoiOWY5YzVjMTYtNTljOC00NzA4LThjMjUtODU1NTA1ZGFhOTU0Iiwic2lnbkRhdGUiOiIyMDEyLTA4LTA4VDE5OjQ3OjMxLjYyNFoiLCJ1aWQiOm51bGwsInBlcm1pc3Npb25zIjpudWxsfQ"}
+              })
 
 (deftest hmac-sha512
-  (is (Arrays/equals (hmac "HmacSHA512" "test" "hello world")
-                     (-> "f39526a1625c5ef672f250037d3b9669e2c6d38c8e19c30344ff04a4fb048ea556befd34ce6dc8fbc7667c76e33c6053bf603ab5760b6e55ce9ab5f1d2274035" char-array Hex/decodeHex))))
+  (is (= (String. (Base64/encodeBase64 (hmac "HmacSHA256" "eyJpbnN0YW5jZUlkIjoiOWY5YzVjMTYtNTljOC00NzA4LThjMjUtODU1NTA1ZGFhOTU0Iiwic2lnbkRhdGUiOiIyMDEyLTA4LTA4VDE5OjQ3OjMxLjYyNFoiLCJ1aWQiOm51bGwsInBlcm1pc3Npb25zIjpudWxsfQ" "d245bbf8-57eb-49d6-aeff-beff6d82cd39") false true)  )
+                     "naQKltLRVJwLVN90qQYpmmyzkVqFIH0hpvETYuivA1U")))
 
-(deftest valid-request
-  (is (= (wixapps-middleware-handler request) request)))
+(deftest base64-decode
+  (is (=
+        (String. (Base64/decodeBase64 (.getBytes "dGVzdA")))
+        (String. (.getBytes "test" )))))
 
-(deftest invalid-request
-  (let [request (assoc request :body (string-input-stream "This is a different test body"))
-        response (wixapps-middleware-handler request)]
+(deftest valis-request-test
+  (is (= (wixapps-middleware-handler valid-request) valid-response )))
+
+(deftest invalid-request-test
+  (let [response (wixapps-middleware-handler invalid-request)]
     (is (= (:status response) 403))
     (is (= (:body response) "403 Forbidden - Incorrect HMAC"))))

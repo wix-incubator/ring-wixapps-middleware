@@ -1,6 +1,7 @@
 (ns ring.middleware.wixapps-middleware
   (:import [org.apache.commons.codec.binary Base64 Hex]
-           [java.util Arrays]))
+           [java.util Arrays])
+  (:require clojure.string))
 
 (defn hmac
   ([algorithm msg key]
@@ -21,15 +22,12 @@
   [handler {:keys [algorithm header-field secret-key forbidden-handler digest-decoder pred message]
             :or {forbidden-handler (fn [req]
                                      {:status 403 :body "403 Forbidden - Incorrect HMAC"})
-                 pred (fn [req] (= :post (:request-method req)))
-                 digest-decoder (fn [digest] (-> digest char-array Hex/decodeHex))
-                 message (fn [req] (slurp (:body req)))}}]
-  {:pre [(every? identity [algorithm header-field secret-key])]}
+                 pred (fn [req] (= :get (:request-method req)))}}]
+  {:pre [(every? identity [algorithm secret-key])]}
   (fn [req]
-    (if (pred req)
-      (let [given-hmac (get (:headers req) header-field)
-            our-hmac (hmac algorithm (message req) secret-key)]
-        (if (Arrays/equals (digest-decoder given-hmac) our-hmac)
-          (handler req)
-          (forbidden-handler req)))
-      (handler req))))
+      (let [ given-hmac (first  (clojure.string/split  (get (:params req) "instance") #"\."))
+             signed-instance (last  (clojure.string/split  (get (:params req) "instance") #"\."))
+             our-hmac (hmac algorithm signed-instance secret-key)]
+        (if (Arrays/equals (Base64/decodeBase64  (.getBytes given-hmac)) our-hmac)
+          (handler (assoc req :params (assoc (:params req) "instance" signed-instance)))
+          (forbidden-handler (String. (Base64/encodeBase64 our-hmac false true ))  )))))
