@@ -26,8 +26,7 @@
                  pred (fn [req] (= :get (:request-method req)))}}]
   {:pre [(every? identity [algorithm secret-key])]}
   (fn [req]
-      (let [ given-hmac (first  (clojure.string/split  (get (:params req) "instance") #"\."))
-             signed-instance (last  (clojure.string/split  (get (:params req) "instance") #"\."))
+      (let [[given-hmac signed-instance] (clojure.string/split  (get (:params req) "instance") #"\.")
              json-instance (json/parse-string (String. (Base64/decodeBase64 (.getBytes signed-instance))))
              our-hmac (hmac algorithm signed-instance secret-key)]
         (if (Arrays/equals (Base64/decodeBase64  (.getBytes given-hmac)) our-hmac)
