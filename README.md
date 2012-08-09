@@ -5,7 +5,7 @@
 ### Usage
 
 #### With Noir - in server.clj
-      (server/add-middleware wrap-wixapps-middleware {:algorithm "HmacSHA512" :secret-key "FIXME put key here"})
+      (server/add-middleware wrap-wixapps-middleware {:algorithm "HmacSHA256" :secret-key "FIXME put key here"})
 
 ## License
 

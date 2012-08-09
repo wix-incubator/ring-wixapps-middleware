@@ -15,7 +15,7 @@
 (defn wrap-wixapps-middleware
   "Function used to add the wixapps middleware to the Ring stack. By default this will
   check POST requests for a Hex encoded digest and if wrong overwrite the response as 403 forbidden.
-    - algorithm should be an algorithm string, for example HmacSHA512
+    - algorithm should be an algorithm string, for example HmacSHA256
     - header-field should be the key for the hmac in the header
     - forbidden-handler, digest-decoder, pred and message are functions that can be overwritten
       to change default behavoir"
