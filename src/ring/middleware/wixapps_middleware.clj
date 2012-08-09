@@ -15,12 +15,12 @@
 
 (defn wrap-wixapps-middleware
   "Function used to add the wixapps middleware to the Ring stack. By default this will
-  check POST requests for a Hex encoded digest and if wrong overwrite the response as 403 forbidden.
+  check GET requests a instance parameter, check the signature against the key, and, if it is valid
+  pass a decoded and parsed SignedInstance hash-map to the controller, replacing the instance parameter.
+  Otherwise, it will return 403 without calling the controller.
     - algorithm should be an algorithm string, for example HmacSHA256
-    - header-field should be the key for the hmac in the header
-    - forbidden-handler, digest-decoder, pred and message are functions that can be overwritten
-      to change default behavoir"
-  [handler {:keys [algorithm header-field secret-key forbidden-handler digest-decoder pred message]
+    - the secret-key is the key you recieved when registering the app"
+  [handler {:keys [algorithm secret-key forbidden-handler pred]
             :or {forbidden-handler (fn [req]
                                      {:status 403 :body "403 Forbidden - Incorrect HMAC"})
                  pred (fn [req] (= :get (:request-method req)))}}]
