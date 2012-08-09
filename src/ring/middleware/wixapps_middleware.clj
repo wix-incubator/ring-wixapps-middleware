@@ -1,7 +1,8 @@
 (ns ring.middleware.wixapps-middleware
   (:import [org.apache.commons.codec.binary Base64 Hex]
            [java.util Arrays])
-  (:require clojure.string))
+  (:require [clojure.string]
+            [clj-json.core :as json]))
 
 (defn hmac
   ([algorithm msg key]
@@ -27,7 +28,8 @@
   (fn [req]
       (let [ given-hmac (first  (clojure.string/split  (get (:params req) "instance") #"\."))
              signed-instance (last  (clojure.string/split  (get (:params req) "instance") #"\."))
+             json-instance (json/parse-string (String. (Base64/decodeBase64 (.getBytes signed-instance))))
              our-hmac (hmac algorithm signed-instance secret-key)]
         (if (Arrays/equals (Base64/decodeBase64  (.getBytes given-hmac)) our-hmac)
-          (handler (assoc req :params (assoc (:params req) "instance" signed-instance)))
-          (forbidden-handler (String. (Base64/encodeBase64 our-hmac false true ))  )))))
+          (handler (assoc req :params (assoc (:params req) "instance" json-instance)))
+          (forbidden-handler req)))))
