@@ -1,4 +1,4 @@
-(defproject ring-wixapps-middleware "0.0.2"
+(defproject ring-wixapps-middleware "0.0.3"
   :description "Ring middleware for WixApps parameters parsing and validation"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [commons-codec/commons-codec "1.4"]

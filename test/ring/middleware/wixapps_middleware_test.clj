@@ -32,7 +32,8 @@
               :server-name "dave.inadub.co.uk"
               :remote-addr "localhost"
               :scheme :http
-              :query-params {"instance" {"instanceId" "9f9c5c16-59c8-4708-8c25-855505daa954", "signDate" "2012-08-08T19:47:31.624Z", "uid" nil, "permissions" nil}}
+              :query-params {"instance" "naQKltLRVJwLVN90qQYpmmyzkVqFIH0hpvETYuivA1U.eyJpbnN0YW5jZUlkIjoiOWY5YzVjMTYtNTljOC00NzA4LThjMjUtODU1NTA1ZGFhOTU0Iiwic2lnbkRhdGUiOiIyMDEyLTA4LTA4VDE5OjQ3OjMxLjYyNFoiLCJ1aWQiOm51bGwsInBlcm1pc3Npb25zIjpudWxsfQ"
+                             "parsed-instance" {"instanceId" "9f9c5c16-59c8-4708-8c25-855505daa954", "signDate" "2012-08-08T19:47:31.624Z", "uid" nil, "permissions" nil}}
               })
 
 (deftest hmac-sha512

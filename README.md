@@ -1,6 +1,7 @@
 # `ring-wixapps-middleware`
 
-[Ring](http://github.com/mmcgrana/ring) middleware that checks the HMAC signature and passes the SignedInstance as a hash-map in the "instance" parameter to the controller.
+[Ring](http://github.com/mmcgrana/ring) middleware that checks the HMAC signature and passes the SignedInstance as a hash-map in the "parsed-instance" parameter to the controller.
+(this is not yet implemented, you still need to parse the instance in your application right now)
 If the signature is not valid, returns 403 to the client without calling the controller.
 
 ### Usage
